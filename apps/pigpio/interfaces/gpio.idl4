@@ -1,0 +1,13 @@
+procedure gpio_inf {
+    include <pigpio.h>;
+
+    /**
+     * Returns <0 on error, 0 for success.
+     */
+    int select_function(in gpio_pin_t pin, in gpio_func_t func);
+    /**
+     * Returns <0 on error, 0 for low, 1 for high.
+     */
+    int read_pin(in gpio_pin_t pin);
+    int write_pin(in gpio_pin_t pin, in bool val);
+};

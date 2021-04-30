@@ -1,0 +1,12 @@
+import "../../interfaces/gpio.idl4";
+
+component GPIOHw {
+    hardware;
+    dataport Buf reg;
+}
+
+component GPIO {
+    dataport Buf reg;
+
+    provides gpio_inf inf;
+}

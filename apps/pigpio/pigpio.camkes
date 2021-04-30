@@ -1,0 +1,33 @@
+import <std_connector.camkes>;
+
+import "components/Controller/Controller.camkes";
+import "components/GPIO/GPIO.camkes";
+import "components/SystemTimer/SystemTimer.camkes";
+
+assembly {
+    composition {
+        component GPIOHw gpio_hw;
+        component GPIO gpio;
+        component SystemTimerHw timer_hw;
+        component SystemTimer timer;
+        component Controller ctrl;
+
+        connection seL4HardwareMMIO gpio_reg(from gpio.reg, to gpio_hw.reg);
+        connection seL4RPCCall gpio_inf(from ctrl.gpio, to gpio.inf);
+
+        connection seL4HardwareMMIO timer_reg(from timer.reg, to timer_hw.reg);
+        connection seL4HardwareInterrupt timer_irq(from timer_hw.irq, to timer.irq);
+        connection seL4RPCCall timer_inf(from ctrl.timer, to timer.inf);
+    }
+
+    configuration {
+        gpio_hw.reg_paddr = 0x3f200000;
+        gpio_hw.reg_size = 0x1000;
+
+        // SYSTEM_TIMER_PADDR in system_timer.h
+        timer_hw.reg_paddr = 0x3f003000;
+        timer_hw.reg_size = 0x1000;
+        // SYSTEM_TIMER_IRQ(SYSTEM_TIMER_MATCH) in system_timer.h
+        timer_hw.irq_irq_number = 0x41;
+    }
+}

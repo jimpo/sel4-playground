@@ -1,0 +1,5 @@
+setenv serverip 192.168.51.1
+setenv bootfilename odroid-xu4/images/latest.elf
+run boot_net_usb_start
+dhcp ${kernel_addr_r} ${serverip}:${bootfilename}
+bootelf ${kernel_addr_r}

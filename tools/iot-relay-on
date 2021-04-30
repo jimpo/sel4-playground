@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+import os.path
+import RPi.GPIO as GPIO
+import sys
+import time
+
+DEFAULT_PIN = 21
+LOCK_FILENAME = os.path.join(os.environ['HOME'], ".iot-relay-lock")
+
+class RelayLockedError(Exception):
+    pass
+
+
+def check_lockfile(lock_filename: str, force: bool):
+    if os.path.exists(lock_filename):
+        if force:
+            os.remove(lock_filename)
+        else:
+            raise RelayLockedError()
+
+
+def activate(lock_filename: str, pin: int):
+    # Create empty lock file
+    with open(lock_filename, 'w') as _:
+        pass
+
+    GPIO.output(pin, GPIO.HIGH)
+
+
+def deactivate(lock_filename: str, pin: int):
+    os.remove(lock_filename)
+    GPIO.output(pin, GPIO.LOW)
+
+
+def activate_and_wait(lock_filename: str = LOCK_FILENAME, pin: int = DEFAULT_PIN, force: bool = False):
+    check_lockfile(lock_filename, force)
+
+    GPIO.setup(pin, GPIO.OUT)
+
+    activate(lock_filename, pin)
+    print("Activated IoT Relay")
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        deactivate(lock_filename, pin)
+        print("Deactivated IoT Relay")
+
+    GPIO.cleanup()
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Activate the IoT relay')
+    parser.add_argument('--pin', type=int, default=DEFAULT_PIN,
+                        help="GPIO pin controlling relay")
+    parser.add_argument('--force', action='store_true',
+                        help="whether to override the lock")
+    args = parser.parse_args()
+
+    GPIO.setmode(GPIO.BCM)
+    try:
+        activate_and_wait(pin=args.pin, force=args.force)
+    except RelayLockedError:
+        sys.stderr.write("IoT relay is already activated. Use --force to override.\n")
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

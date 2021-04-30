@@ -1,0 +1,8 @@
+import "../../interfaces/gpio.idl4";
+import "../../interfaces/timer.idl4";
+
+component Controller {
+    control;
+    uses gpio_inf gpio;
+    uses timer_inf timer;
+}

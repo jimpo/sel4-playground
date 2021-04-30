@@ -1,0 +1,15 @@
+import "../../interfaces/timer.idl4";
+
+component SystemTimerHw {
+    hardware;
+    dataport Buf reg;
+    emits Match irq;
+}
+
+component SystemTimer {
+    dataport Buf reg;
+    consumes Match irq;
+
+    provides timer_inf inf;
+    has semaphore sem;
+}

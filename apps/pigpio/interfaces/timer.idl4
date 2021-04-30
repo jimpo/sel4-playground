@@ -1,0 +1,3 @@
+procedure timer_inf {
+    int sleep(in uint64_t ns);
+};
